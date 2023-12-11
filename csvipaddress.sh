@@ -1,20 +1,19 @@
 #!/bin/bash
 
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <input_csv>"
+# Check that input argument is provided 
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <input_csv_file>"
     exit 1
 fi
 
-input_csv="$1"
-output_csv="ipaddresses.csv"
+# Get input csv file  
+input_csv=$1
 
-# Ensure input file exists
-if [ ! -f "$input_csv" ]; then
-    echo "Error: Input file '$input_csv' not found."
-    exit 1
-fi
+# Extract IP addresses from input CSV
+# Use grep to find IP patterns, cut to extract just the IP, sort/uniq to get unique IPs
+ips=$(grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" $input_csv | cut -d']' -f1 | sort -u)  
 
-# Extract unique IP addresses from the second column of the CSV file
-awk -F',' '{print $2}' "$input_csv" | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" | sort -u > "$output_csv"
+# Write unique IPs to output csv file
+echo "$ips" > ipaddresses.csv
 
-echo "Unique IP addresses have been written to $output_csv"
+echo "Unique IP addresses written to ipaddresses.csv"
